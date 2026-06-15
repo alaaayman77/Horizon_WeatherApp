@@ -8,54 +8,43 @@
 import SwiftUI
 import SwiftData
 
+
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @State private var selection : TabKey = .home
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+      
+        ZStack(alignment: .bottom) {
+      
+            TabView(selection: $selection){
+                Tab( value: TabKey.home){
+                    HomeView().toolbar(.hidden, for: .tabBar)
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                Tab( value: TabKey.favourite){
+                    FavouriteView().toolbar(.hidden, for: .tabBar)
                 }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+                Tab(value: TabKey.search, role : .search){
+                    SearchView().toolbar(.hidden, for: .tabBar)
                 }
             }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+         
+        
+            HStack(spacing: 40) {
+                TabBarButton(icon: "cloud.bolt.rain.fill", title: "Home", tab: .home, selection: $selection)
+                TabBarButton(icon: "heart.fill", title: "Favourite", tab: .favourite, selection: $selection)
+                TabBarButton(icon: "magnifyingglass", title: "Search", tab: .search, selection: $selection)
             }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 30)
+            .background(.ultraThinMaterial)
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+            .padding(.bottom, 10)
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
-}
+
+ 
+
