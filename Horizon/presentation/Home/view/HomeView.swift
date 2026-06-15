@@ -15,10 +15,15 @@ struct HomeView: View {
                 .scaledToFill()
                 .ignoresSafeArea()
             VStack{
-                Text("Home")
+               HomeHeaderView()
+                Spacer()
             }
+           
         }
     }
 }
 
 
+#Preview{
+    HomeView().preferredColorScheme(.dark)
+}
