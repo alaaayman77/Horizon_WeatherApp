@@ -9,16 +9,23 @@ import SwiftUI
 
 struct HomeView: View {
     var body: some View {
-        ZStack{
-            Image("")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-            VStack{
-               HomeHeaderView()
-                Spacer()
+        NavigationStack{
+            ZStack{
+                Image("night")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 20) {
+                        HomeHeaderView()
+                        DailyForecastList()
+                        WeatherStatGrid()
+                              }
+                              .padding(.top, 20)
+                              .padding(.bottom, 30)
+                          }
+               
             }
-           
         }
     }
 }
