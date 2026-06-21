@@ -9,12 +9,12 @@ import SwiftUI
 
 struct HourlyForecastListView: View {
  
-    let hours: [HourlyForecast] = [
-        HourlyForecast(time: "Now",   icon: "sun.max.fill", temperature: 15, isNow: true),
-        HourlyForecast(time: "10:00", icon: "sun.max.fill", temperature: 16, isNow: false),
-        HourlyForecast(time: "11:00", icon: "cloud.fill",   temperature: 17, isNow: false),
-        HourlyForecast(time: "12:00", icon: "cloud.fill",   temperature: 17, isNow: false),
-        HourlyForecast(time: "13:00", icon: "sun.max.fill", temperature: 18, isNow: false)
+    let hours: [HourlyForecastItem] = [
+        HourlyForecastItem(time: "Now",   icon: "sun.max.fill", temperature: 15, isNow: true),
+        HourlyForecastItem(time: "10:00", icon: "sun.max.fill", temperature: 16, isNow: false),
+        HourlyForecastItem(time: "11:00", icon: "cloud.fill",   temperature: 17, isNow: false),
+        HourlyForecastItem(time: "12:00", icon: "cloud.fill",   temperature: 17, isNow: false),
+        HourlyForecastItem(time: "13:00", icon: "sun.max.fill", temperature: 18, isNow: false)
     ]
  
     var body: some View {

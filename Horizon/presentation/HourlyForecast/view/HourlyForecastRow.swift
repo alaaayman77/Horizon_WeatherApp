@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HourlyRowView: View {
-    let hour: HourlyForecast
+    let hour: HourlyForecastItem
  
     var body: some View {
         HStack {
