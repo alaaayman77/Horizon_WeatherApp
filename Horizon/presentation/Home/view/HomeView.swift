@@ -20,6 +20,8 @@ struct HomeView: View {
                         HomeHeaderView()
                         DailyForecastList()
                         WeatherStatGrid()
+                        SunTimesView()
+                        UVIndexView()
                               }
                               .padding(.top, 20)
                               .padding(.bottom, 30)
