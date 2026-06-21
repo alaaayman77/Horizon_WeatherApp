@@ -6,35 +6,21 @@
 //
 
 import SwiftUI
-
 struct ForecastRowView: View {
     let day: ForecastDay
-
     var body: some View {
         HStack {
             Text(day.name)
                 .font(AppFont.weatherRowText)
-                .foregroundColor(.textPrimary)
-
+                .foregroundColor(.textSecondary)
             Spacer()
-
             Image(systemName: day.icon)
-                .font(.system(size: 24))
-                .foregroundColor(.accentBlue)
-
+                .font(.system(size: 22))
+                .foregroundColor(.sunYellow)
             Spacer()
-
             Text("\(day.high)° / \(day.low)°")
                 .font(AppFont.weatherRowText)
                 .foregroundColor(.textPrimary)
         }
     }
 }
-
-/*#Preview {
-    ZStack {
-        Color.deepNavy.ignoresSafeArea()
-        ForecastRowView(day: ForecastDay(name: "Tomorrow", icon: "cloud.sleet.fill", high: 15, low: 9))
-            .padding()
-    }
-}*/

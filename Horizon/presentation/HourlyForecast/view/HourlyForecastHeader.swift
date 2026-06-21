@@ -13,17 +13,27 @@ struct HourlyForecastHeader: View {
 
     var body: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 6) {
                 Button(action: onBack) {
                     Image(systemName: "arrow.left")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(.textPrimary)
                 }
 
-                Text("Hourly Forecast")
-                    .font(AppFont.h1)
-                    .foregroundColor(.textPrimary)
-            }
+              
+                    Image(systemName: "clock")
+                        .font(.system(size: 20))
+                        
+                    Text("HOURLY FORECAST")
+                        .font(AppFont.h1)
+                        .foregroundColor(Color.white)
+                        
+                }
+                .foregroundColor(.textSecondary)
+                .padding(.bottom, 12)
+                .padding(.horizontal, 4)
+                  
+            
 
             Spacer()
 

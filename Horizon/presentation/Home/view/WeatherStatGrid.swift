@@ -6,23 +6,24 @@
 //
 
 import SwiftUI
+
 struct WeatherStatGrid: View {
- 
-    let stats: [WeatherStat] = [
-        WeatherStat(title: "Visibility", value: "10 km", icon: "eye.fill"),
-        WeatherStat(title: "Humidity", value: "85%", icon: "drop.fill"),
-        WeatherStat(title: "Feels Like", value: "14°C", icon: "thermometer"),
-        WeatherStat(title: "Pressure", value: "1012 hPa", icon: "gauge")
-    ]
+  
+     let skyStats: [WeatherStat] = [
+          WeatherStat(title: "CLOUD", value: "0%", icon: "cloud.fill", iconColor: .accentBlue),
+          WeatherStat(title: "SUNRISE", value: "06:08 AM", icon: "sun.max.fill", iconColor: .sunYellow),
+          WeatherStat(title: "SUNSET", value: "06:09 PM", icon: "moon.stars.fill", iconColor: .moonPurple)
+      ]
  
     private let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
     ]
  
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(stats) { stat in
+        LazyVGrid(columns: columns, spacing: 12) {
+            ForEach(skyStats) { stat in
                 StatCardView(stat: stat)
             }
         }

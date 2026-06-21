@@ -6,35 +6,33 @@
 //
 
 import SwiftUI
+
 struct HourlyRowView: View {
     let hour: HourlyForecast
  
     var body: some View {
         HStack {
             Text(hour.time)
-                .font(AppFont.h3)
-                .foregroundColor(.textPrimary)
+                .font(AppFont.weatherRowText)
+                .foregroundColor(.white )
  
             Spacer()
  
             Image(systemName: hour.icon)
-                .font(.system(size: 28))
-                .foregroundColor(.accentBlue)
+                .font(.system(size: 22))
+                .foregroundColor(hour.isNow ? .white : .sunYellow)
  
             Spacer()
  
-            Text("\(hour.temperature)°")
+            Text("\(hour.temperature)°C")
                 .font(AppFont.weatherStatValue)
-                .foregroundColor(.textPrimary)
+                .foregroundColor(.white )
         }
-        .padding(.vertical, 18)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(hour.isNow ? Color.navy : Color.clear)
+        )
     }
 }
- 
-/*#Preview {
-    ZStack {
-        Color.deepNavy.ignoresSafeArea()
-        HourlyRowView(hour: HourlyForecast(time: "Now", icon: "cloud.moon.fill", temperature: 13))
-            .padding()
-    }
-}*/

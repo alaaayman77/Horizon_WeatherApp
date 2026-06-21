@@ -10,4 +10,5 @@ struct WeatherStat: Identifiable {
     let title: String
     let value: String
     let icon: String
+    let iconColor: Color
 }
