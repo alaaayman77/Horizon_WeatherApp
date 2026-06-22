@@ -4,7 +4,7 @@
 //
 //  Created by Alaa Ayman on 21/06/2026.
 //
-import SwiftUI
+import Foundation
 struct DailyForecast {
     let date: Date
     let maxTemperatureCelsius: Double
