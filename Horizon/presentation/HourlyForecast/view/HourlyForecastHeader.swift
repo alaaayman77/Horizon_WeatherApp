@@ -15,28 +15,24 @@ struct HourlyForecastHeader: View {
         HStack(alignment: .top) {
             HStack(spacing: 6) {
                 Button(action: onBack) {
-                    Image(systemName: "arrow.left")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.textPrimary)
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundColor(.white)
                 }
 
+                Image(systemName: "clock")
+                    .font(.system(size: 20))
+                    .foregroundColor(.white)
+                    
+                Text("HOURLY FORECAST")
+                    .font(AppFont.h1)
+                    .foregroundColor(.white)
+                    
+            }
+            .padding(.bottom, 12)
+            .padding(.horizontal, 4)
               
-                    Image(systemName: "clock")
-                        .font(.system(size: 20))
-                        
-                    Text("HOURLY FORECAST")
-                        .font(AppFont.h1)
-                        .foregroundColor(Color.white)
-                        
-                }
-                .foregroundColor(.textSecondary)
-                .padding(.bottom, 12)
-                .padding(.horizontal, 4)
-                  
-            
-
             Spacer()
-
             
         }
         .padding(.horizontal, 20)
@@ -47,6 +43,6 @@ struct HourlyForecastHeader: View {
 /*#Preview {
     ZStack {
         Color.deepNavy.ignoresSafeArea()
-        HourlyForecastHeaderView()
+        HourlyForecastHeader(onBack: {})
     }
 }*/
