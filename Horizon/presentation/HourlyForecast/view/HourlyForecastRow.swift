@@ -1,3 +1,4 @@
+
 //
 //  HourlyForecastRow.swift
 //  Horizon
@@ -9,24 +10,42 @@ import SwiftUI
 
 struct HourlyRowView: View {
     let hour: HourlyForecastItem
- 
+
     var body: some View {
         HStack {
             Text(hour.time)
                 .font(AppFont.weatherRowText)
-                .foregroundColor(.white )
- 
+                .foregroundColor(.white)
+
             Spacer()
- 
-            Image(systemName: hour.icon)
-                .font(.system(size: 22))
-                .foregroundColor(hour.isNow ? .white : .sunYellow)
- 
+
+            AsyncImage(url: URL(string: hour.iconURL)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFit()
+                case .failure:
+                   
+                    Image(systemName: hour.sfIcon)
+                        .font(.system(size: 22))
+                        .foregroundColor(.sunYellow)
+                case .empty:
+          
+                    Image(systemName: hour.sfIcon)
+                        .font(.system(size: 22))
+                        .foregroundColor(.sunYellow.opacity(0.5))
+                @unknown default:
+                    EmptyView()
+                }
+            }
+            .frame(width: 36, height: 36)
+
             Spacer()
- 
+
             Text("\(hour.temperature)°C")
                 .font(AppFont.weatherStatValue)
-                .foregroundColor(.white )
+                .foregroundColor(.white)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)

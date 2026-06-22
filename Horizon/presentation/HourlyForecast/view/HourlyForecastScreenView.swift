@@ -4,11 +4,15 @@
 //
 //  Created by Alaa Ayman on 18/06/2026.
 //
-
 import SwiftUI
 
 struct HourlyForecastScreenView: View {
+    @StateObject private var viewModel: HourlyForecastViewModel
     @Environment(\.dismiss) private var dismiss
+
+    init(day: DailyForecastItem) {
+        _viewModel = StateObject(wrappedValue: HourlyForecastViewModel(day: day))
+    }
 
     var body: some View {
         ZStack {
@@ -21,22 +25,16 @@ struct HourlyForecastScreenView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                HourlyForecastHeader(onBack: { dismiss() })
+                HourlyForecastHeader( onBack: { dismiss() })
 
-                HourlyForecastListView()
+                ScrollView(showsIndicators: false) {
+                    HourlyForecastListView(hours: viewModel.hours)
+                }
+
                 Spacer()
-           
             }
-          
         }
-    
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
     }
 }
-
-/*#Preview {
-    NavigationStack {
-        HourlyForecastScreenView()
-    }
-}*/

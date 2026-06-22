@@ -9,6 +9,11 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
 
+    init(query: String? = nil) {
+        _viewModel = StateObject(wrappedValue: HomeViewModel(query: query))
+    }
+
+
     var body: some View {
         NavigationStack {
             ZStack {

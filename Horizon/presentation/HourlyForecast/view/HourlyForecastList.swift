@@ -4,27 +4,18 @@
 //
 //  Created by Alaa Ayman on 18/06/2026.
 //
-
 import SwiftUI
 
 struct HourlyForecastListView: View {
- 
-    let hours: [HourlyForecastItem] = [
-        HourlyForecastItem(time: "Now",   icon: "sun.max.fill", temperature: 15, isNow: true),
-        HourlyForecastItem(time: "10:00", icon: "sun.max.fill", temperature: 16, isNow: false),
-        HourlyForecastItem(time: "11:00", icon: "cloud.fill",   temperature: 17, isNow: false),
-        HourlyForecastItem(time: "12:00", icon: "cloud.fill",   temperature: 17, isNow: false),
-        HourlyForecastItem(time: "13:00", icon: "sun.max.fill", temperature: 18, isNow: false)
-    ]
- 
+    let hours: [HourlyForecastItem]
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-           
- 
+
             ForEach(Array(hours.enumerated()), id: \.element.id) { index, hour in
                 HourlyRowView(hour: hour)
                     .frame(maxWidth: .infinity)
- 
+
                 if index < hours.count - 1 && !hour.isNow {
                     Divider()
                         .background(Color.cardStroke)
@@ -33,8 +24,5 @@ struct HourlyForecastListView: View {
             }
         }
         .padding(20)
-       
-        .padding(.horizontal, 20)
     }
 }
- 

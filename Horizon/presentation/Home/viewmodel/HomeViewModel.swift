@@ -32,15 +32,18 @@ final class HomeViewModel: ObservableObject {
     private let getDailyForecast: GetDailyForecastUsecase
     private let getLocation: GetLocationUsecase
     private let locationService: LocationService
+    private let query: String?
     
    
     
     init(
+        query: String? = nil,
         getCurrentWeather: GetCurrentWeatherUsecase = GetCurrentWeatherUsecase(),
         getDailyForecast: GetDailyForecastUsecase = GetDailyForecastUsecase(),
         getLocation: GetLocationUsecase = GetLocationUsecase(),
         locationService: LocationService? = nil
     ) {
+        self.query = query
         self.getCurrentWeather = getCurrentWeather
         self.getDailyForecast = getDailyForecast
         self.getLocation = getLocation
@@ -50,15 +53,19 @@ final class HomeViewModel: ObservableObject {
  
     
     func loadWeatherForCurrentLocation() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            let coordinate = try await locationService.requestCurrentLocation()
-            let query = "\(coordinate.latitude),\(coordinate.longitude)"
+        if let query {
             await loadWeather(query: query)
-        } catch {
-            errorMessage = "Couldn't get your location. \(error.localizedDescription)"
-            isLoading = false
+        } else {
+            isLoading = true
+            errorMessage = nil
+            do {
+                let coordinate = try await locationService.requestCurrentLocation()
+                let q = "\(coordinate.latitude),\(coordinate.longitude)"
+                await loadWeather(query: q)
+            } catch {
+                errorMessage = "Couldn't get your location. \(error.localizedDescription)"
+                isLoading = false
+            }
         }
     }
     
