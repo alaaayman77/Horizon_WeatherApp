@@ -8,13 +8,15 @@ import Foundation
 import Alamofire
 
 protocol NetworkService {
-    func fetchData<T: Decodable>(url: String, parameters: [String: Any]) async throws -> T
+    func fetchData<T: Decodable>(url: String, parameters: [String: Any], headers: [String: String]) async throws -> T
 }
 
 class NetworkManager: NetworkService {
-    func fetchData<T: Decodable>(url: String, parameters: [String: Any]) async throws -> T {
-        let request = AF.request(url, method: .get, parameters: parameters)
+    func fetchData<T: Decodable>(url: String, parameters: [String: Any], headers: [String: String] = [:]) async throws -> T {
+        let httpHeaders = HTTPHeaders(headers)
+        let request = AF.request(url, method: .get, parameters: parameters, headers: httpHeaders)
         let dataResponse = await request.serializingDecodable(T.self).response
+        
         return try dataResponse.result.get()
     }
 }
