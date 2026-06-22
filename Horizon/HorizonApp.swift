@@ -15,6 +15,7 @@ struct HorizonApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+               
         }
         
     }
