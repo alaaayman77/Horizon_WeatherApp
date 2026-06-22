@@ -16,11 +16,13 @@ class WeatherService {
     
     func fetchForecast(query: String, days: Int) async throws -> WeatherResponseDTO {
         let endpoint = WeatherEndpoint.forecast(query: query, days: days)
-        return try await network.fetchData(url: endpoint.fullURL, parameters: endpoint.parameters)
+        return try await network.fetchData(url: endpoint.fullURL, parameters: endpoint.parameters, headers: [:])
     }
     
     func fetchCurrentWeather(query: String) async throws -> WeatherResponseDTO {
         let endpoint = WeatherEndpoint.current(query: query)
-        return try await network.fetchData(url: endpoint.fullURL, parameters: endpoint.parameters)
+        return try await network.fetchData(url: endpoint.fullURL, parameters: endpoint.parameters, headers: [:])
     }
+    
+ 
 }
