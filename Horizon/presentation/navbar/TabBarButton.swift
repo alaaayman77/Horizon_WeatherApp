@@ -23,7 +23,7 @@ struct TabBarButton: View {
                     .font(.caption2)
             }
         
-            .foregroundColor(selection == tab ? .blue : .gray)
+            .foregroundColor(selection == tab ? Color.deepNavy : .gray)
         }
     }
 }

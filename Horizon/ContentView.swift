@@ -36,7 +36,7 @@ struct ContentView: View {
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 30)
-            .background(.ultraThinMaterial)
+            .background(Color.cardFill)
             .clipShape(Capsule())
             .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
             .padding(.bottom, 10)
