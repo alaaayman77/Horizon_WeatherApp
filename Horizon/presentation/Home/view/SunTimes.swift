@@ -5,11 +5,10 @@
 //  Created by Alaa Ayman on 21/06/2026.
 //
 import SwiftUI
-
 struct SunTimesView: View {
-    let sunrise: String = "06:08 AM"
-    let sunset: String = "06:09 PM"
-    let progress: Double = 0.42
+    let sunrise: String
+    let sunset: String
+    let progress: Double
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -20,12 +19,10 @@ struct SunTimesView: View {
             GeometryReader { geo in
                 let width = geo.size.width
                 let height: CGFloat = 90
-
                 ZStack {
                     ArcShape()
                         .stroke(Color.textTertiary.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, dash: [4, 5]))
                         .frame(height: height)
-
                     SunDot(progress: progress)
                         .frame(height: height)
                 }
@@ -47,9 +44,7 @@ struct SunTimesView: View {
                         .font(AppFont.weatherRowText)
                         .foregroundColor(.textPrimary)
                 }
-
                 Spacer()
-
                 VStack(alignment: .trailing, spacing: 4) {
                     HStack(spacing: 4) {
                         Text("Sunset")
@@ -77,7 +72,6 @@ struct SunTimesView: View {
         .padding(.horizontal, 20)
     }
 }
-
 private struct ArcShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -112,9 +106,3 @@ extension SunDot: View {
     }
 }
 
-#Preview {
-    ZStack {
-        Color.white.ignoresSafeArea()
-        SunTimesView()
-    }
-}

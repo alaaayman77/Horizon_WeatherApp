@@ -4,10 +4,9 @@
 //
 //  Created by Alaa Ayman on 18/06/2026.
 //
-
 import SwiftUI
 struct ForecastRowView: View {
-    let day: ForecastDay
+    let day: DailyForecastItem
     var body: some View {
         HStack {
             Text(day.name)
