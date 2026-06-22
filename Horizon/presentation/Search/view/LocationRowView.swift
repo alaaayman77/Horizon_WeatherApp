@@ -13,8 +13,9 @@ struct LocationRowView: View {
     let title: String
     let subtitle: String
     
- 
-    @State private var isFavorite: Bool = false
+   
+    let isFavorite: Bool
+    var onFavoriteTapped: () -> Void
 
     var body: some View {
         HStack(spacing: 14) {
@@ -32,11 +33,8 @@ struct LocationRowView: View {
 
             Spacer()
             
-   
-            Button(action: {
-                
-                isFavorite.toggle()
-            }) {
+      
+            Button(action: onFavoriteTapped) {
                 Image(systemName: isFavorite ? "heart.fill" : "heart")
                     .font(.system(size: 24))
                     .foregroundColor(isFavorite ? .red : .textOnPhotoSecondary)

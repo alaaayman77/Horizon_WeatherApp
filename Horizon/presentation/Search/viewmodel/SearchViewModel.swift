@@ -4,21 +4,20 @@
 //
 //  Created by Alaa Ayman on 22/06/2026.
 //
-
 import Foundation
 import Combine
+import SwiftData
 
 @MainActor
 final class SearchViewModel: ObservableObject {
     @Published var query: String = ""
-    @Published private(set) var countries: [Country] = []
-    @Published private(set) var filteredCountries: [Country] = []
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
+    @Published private(set) var displayedCountries: [CountryItem] = []
 
     var isSearching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
-    var displayedCountries: [Country] { isSearching ? filteredCountries : countries }
 
+    private var allNetworkCountries: [Country] = []
     private let getCountries: GetCountriesUsecase
     private var cancellables = Set<AnyCancellable>()
 
@@ -33,24 +32,19 @@ final class SearchViewModel: ObservableObject {
             .removeDuplicates()
             .sink { [weak self] value in
                 guard let self else { return }
-                let trimmed = value.trimmingCharacters(in: .whitespaces)
-                if trimmed.isEmpty {
-                    self.filteredCountries = []
-                } else {
-                    self.filteredCountries = self.countries.filter {
-                        $0.name.localizedCaseInsensitiveContains(trimmed)
-                    }
-                }
+                self.updateDisplayedCountries(for: value)
             }
             .store(in: &cancellables)
     }
 
-    func loadCountries() async {
-        guard countries.isEmpty else { return }
+    func loadCountries(context: ModelContext) async {
+        guard allNetworkCountries.isEmpty else { return }
         isLoading = true
         errorMessage = nil
         do {
-            countries = try await getCountries.execute()
+            allNetworkCountries = try await getCountries.execute()
+            updateDisplayedCountries(for: query)
+            syncFavorites(context: context)
         } catch {
             errorMessage = "Couldn't load countries. Try again."
         }
@@ -59,8 +53,78 @@ final class SearchViewModel: ObservableObject {
 
     func clearQuery() {
         query = ""
-        filteredCountries = []
     }
 
+    private func updateDisplayedCountries(for searchQuery: String) {
+        let trimmed = searchQuery.trimmingCharacters(in: .whitespaces)
 
+        let filtered: [Country]
+        if trimmed.isEmpty {
+            filtered = allNetworkCountries
+        } else {
+            filtered = allNetworkCountries.filter {
+                $0.name.localizedCaseInsensitiveContains(trimmed)
+            }
+        }
+
+ 
+        let existingFavorites = Dictionary(
+            uniqueKeysWithValues: displayedCountries.map { ($0.query, $0.isFavorite) }
+        )
+
+        self.displayedCountries = filtered.map { domainCountry in
+            CountryItem(
+                name: domainCountry.name,
+                code: domainCountry.code,
+                flagEmoji: domainCountry.flagEmoji,
+                query: domainCountry.query,
+                isFavorite: existingFavorites[domainCountry.query] ?? false
+            )
+        }
+    }
+
+    func toggleFavorite(for country: CountryItem, context: ModelContext) {
+        let dao = FavoritesDAOImpl(context: context)
+        let localDS = FavouriteLocalDatasourceImpl(dao: dao)
+        let repo = FavouriteRepositoryImpl(localDataSource: localDS)
+        let saveFavorite = SaveFavouriteUsecase(repository: repo)
+        let deleteFavorite = DeleteFavouriteUsecase(repository: repo)
+
+        do {
+            if country.isFavorite {
+                try deleteFavorite.execute(query: country.query)
+            } else {
+                let newFav = FavoriteLocation(
+                    query: country.query,
+                    name: country.name,
+                    code: country.code,
+                    flagEmoji: country.flagEmoji,
+                    createdAt: Date()
+                )
+                try saveFavorite.execute(location: newFav)
+            }
+
+         
+            if let idx = displayedCountries.firstIndex(where: { $0.query == country.query }) {
+                displayedCountries[idx].isFavorite.toggle()
+            }
+      
+            syncFavorites(context: context)
+
+        } catch {
+            errorMessage = "Failed to update favorite status."
+        }
+    }
+
+    func syncFavorites(context: ModelContext) {
+        let dao = FavoritesDAOImpl(context: context)
+        let localDS = FavouriteLocalDatasourceImpl(dao: dao)
+        let repo = FavouriteRepositoryImpl(localDataSource: localDS)
+        let checkFavorite = CheckFavouriteUsecase(repository: repo)
+
+        for i in 0..<displayedCountries.count {
+            let isFav = (try? checkFavorite.execute(query: displayedCountries[i].query)) ?? false
+            displayedCountries[i].isFavorite = isFav
+        }
+    }
 }

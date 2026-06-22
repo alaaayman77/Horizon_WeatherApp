@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
+    @Environment(\.modelContext) private var context
+    @State private var selectedQuery: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -33,12 +36,12 @@ struct SearchView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 30)
                     Button("Retry") {
-                        Task { await viewModel.loadCountries() }
+                        Task { await viewModel.loadCountries(context: context) }
                     }
                     .foregroundColor(.textOnPhoto)
                     .padding(.top, 8)
                     Spacer()
-                } else if viewModel.isSearching && viewModel.filteredCountries.isEmpty {
+                } else if viewModel.isSearching && viewModel.displayedCountries.isEmpty {
                     Spacer()
                     Text("No results for \"\(viewModel.query)\"")
                         .font(AppFont.body)
@@ -46,26 +49,22 @@ struct SearchView: View {
                     Spacer()
                 } else {
                     List {
-                        ForEach(Array(viewModel.displayedCountries.enumerated()), id: \.element.id) { index, country in
+                        ForEach(Array(viewModel.displayedCountries.enumerated()), id: \.element.query) { index, countryItem in
                             VStack(spacing: 0) {
-                                
-                                
-                                ZStack(alignment: .leading) {
-                             
-                                    NavigationLink(destination: HomeView(query: country.query)) {
-                                        EmptyView()
+                                LocationRowView(
+                                    icon: countryItem.flagEmoji,
+                                    title: countryItem.name,
+                                    subtitle: countryItem.code,
+                                    isFavorite: countryItem.isFavorite,
+                                    onFavoriteTapped: {
+                                        viewModel.toggleFavorite(for: countryItem, context: context)
                                     }
-                                    .opacity(0)
-                                    
-                                   
-                                    LocationRowView(
-                                        icon: country.flagEmoji,
-                                        title: country.name,
-                                        subtitle: country.code
-                                    )
+                                )
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    selectedQuery = countryItem.query
                                 }
-                                
-                               
+
                                 if index < viewModel.displayedCountries.count - 1 {
                                     Divider()
                                         .background(Color.cardStroke)
@@ -73,12 +72,15 @@ struct SearchView: View {
                             }
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)) //
+                            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                         }
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
                     .contentMargins(.horizontal, 0)
+                    .navigationDestination(item: $selectedQuery) { query in
+                        HomeView(query: query)
+                    }
                 }
             }
             .background {
@@ -93,9 +95,19 @@ struct SearchView: View {
             }
             .navigationBarHidden(true)
             .ignoresSafeArea(.keyboard, edges: .bottom)
+            .onAppear {
+                if !viewModel.displayedCountries.isEmpty {
+                    viewModel.syncFavorites(context: context)
+                }
+            }
+            .onChange(of: viewModel.displayedCountries) { oldValue, newValue in
+                if oldValue.count != newValue.count || oldValue.first?.query != newValue.first?.query {
+                    viewModel.syncFavorites(context: context)
+                }
+            }
         }
         .task {
-            await viewModel.loadCountries()
+            await viewModel.loadCountries(context: context)
         }
     }
 }
