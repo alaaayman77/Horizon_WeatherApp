@@ -15,6 +15,8 @@ final class FavoriteLocationModel {
     var code: String
     var flagEmoji: String
     var createdAt: Date
+    var cachedWeatherData: Data?
+    var cachedAt: Date?
 
     init(name: String, code: String, flagEmoji: String, query: String, createdAt: Date = Date()) {
         self.name = name
