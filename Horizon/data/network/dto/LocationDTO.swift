@@ -5,7 +5,7 @@
 //  Created by Alaa Ayman on 18/06/2026.
 //
 
-struct LocationDTO: Decodable {
+struct LocationDTO: Codable {
     let name: String
     let region: String  
     let country: String

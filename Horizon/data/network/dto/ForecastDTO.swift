@@ -5,11 +5,11 @@
 //  Created by Alaa Ayman on 18/06/2026.
 //
 
-struct ForecastDTO: Decodable {
+struct ForecastDTO: Codable {
     let forecastday: [ForecastDayDTO]
 }
 
-struct ForecastDayDTO: Decodable {
+struct ForecastDayDTO: Codable {
     let dateEpoch: Int
     let day: DayDTO
     let astro: AstroDTO
@@ -21,7 +21,7 @@ struct ForecastDayDTO: Decodable {
     }
 }
 
-struct DayDTO: Decodable {
+struct DayDTO: Codable {
     let maxtempC: Double
     let mintempC: Double
     let condition: ConditionDTO
@@ -36,11 +36,11 @@ struct DayDTO: Decodable {
 }
 
 
-struct AstroDTO: Decodable {
+struct AstroDTO: Codable {
     let sunrise: String
     let sunset: String
 }
-struct HourlyWeatherDTO: Decodable {
+struct HourlyWeatherDTO: Codable {
     let timeEpoch: Int
     let tempC: Double
     let condition: ConditionDTO

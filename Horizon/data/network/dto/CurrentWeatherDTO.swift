@@ -4,7 +4,7 @@
 //
 //  Created by Alaa Ayman on 18/06/2026.
 //
-struct CurrentWeatherDTO: Decodable {
+struct CurrentWeatherDTO: Codable {
     let tempC: Double
     let isDay: Int
     let condition: ConditionDTO
@@ -32,12 +32,12 @@ struct CurrentWeatherDTO: Decodable {
     }
 }
 
-struct ConditionDTO: Decodable {
+struct ConditionDTO: Codable {
     let text: String
     let icon: String
 }
 
-struct AirQualityDTO: Decodable {
+struct AirQualityDTO: Codable {
     let usEpaIndex: Int
     
     enum CodingKeys: String, CodingKey {
