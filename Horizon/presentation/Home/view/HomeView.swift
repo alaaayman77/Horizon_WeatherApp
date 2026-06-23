@@ -7,17 +7,33 @@
 
 
 import SwiftUI
+import SwiftData
+
 
 struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
-    @Environment(\.dismiss) private var dismiss
-    
-  
+    @Environment(\.modelContext) private var context
     let query: String?
 
     init(query: String? = nil) {
         self.query = query
-        _viewModel = StateObject(wrappedValue: HomeViewModel(query: query))
+    }
+
+    var body: some View {
+        HomeContentView(query: query, context: context)
+    }
+}
+
+
+private struct HomeContentView: View {
+    @StateObject private var viewModel: HomeViewModel
+    @Environment(\.dismiss) private var dismiss
+    let query: String?
+
+    init(query: String?, context: ModelContext) {
+        self.query = query
+        _viewModel = StateObject(
+            wrappedValue: HomeViewModel(query: query, context: context)
+        )
     }
 
     var body: some View {
@@ -30,8 +46,13 @@ struct HomeView: View {
 
                 if viewModel.isLoading && viewModel.currentWeather == nil {
                     ProgressView().tint(.white)
-                } else if let errorMessage = viewModel.errorMessage, viewModel.currentWeather == nil {
+
+                } else if let errorMessage = viewModel.errorMessage,
+                          viewModel.currentWeather == nil {
                     VStack(spacing: 12) {
+                        Image(systemName: "wifi.slash")
+                            .font(.system(size: 40))
+                            .foregroundColor(.textOnPhotoSecondary)
                         Text(errorMessage)
                             .font(AppFont.body)
                             .foregroundColor(.textOnPhoto)
@@ -42,11 +63,9 @@ struct HomeView: View {
                         .foregroundColor(.textOnPhoto)
                     }
                     .padding(.horizontal, 30)
+
                 } else {
-                  
                     VStack(spacing: 0) {
-                        
-                   
                         if query != nil {
                             HStack {
                                 Button(action: { dismiss() }) {
@@ -59,7 +78,13 @@ struct HomeView: View {
                                 Spacer()
                             }
                         }
-                        
+
+                        if viewModel.isShowingCachedData {
+                            NoInternetBannerView {
+                                Task { await viewModel.refresh() }
+                            }
+                        }
+
                         ScrollView {
                             VStack(spacing: 20) {
                                 HomeHeaderView(
@@ -72,7 +97,7 @@ struct HomeView: View {
                                 )
                                 DailyForecastList(days: viewModel.dailyForecastItems)
                                 WeatherStatGrid(currentWeather: viewModel.currentWeather)
-                                
+
                                 if let sunTimes = viewModel.sunTimes {
                                     SunTimesView(
                                         sunrise: sunTimes.sunrise,
@@ -80,7 +105,7 @@ struct HomeView: View {
                                         progress: viewModel.sunProgress
                                     )
                                 }
-                                if let currentWeather = viewModel.currentWeather {
+                                if viewModel.currentWeather != nil {
                                     UVIndexView(
                                         roundedValue: viewModel.uvRoundedValue,
                                         label: viewModel.uvLabel,
@@ -88,7 +113,6 @@ struct HomeView: View {
                                     )
                                 }
                             }
-                           
                             .padding(.top, query != nil ? 10 : 20)
                             .padding(.bottom, 30)
                         }

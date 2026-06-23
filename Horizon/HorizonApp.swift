@@ -17,6 +17,6 @@ struct HorizonApp: App {
             ContentView()
                
         }
-        .modelContainer(for: FavoriteLocationModel.self)
+        .modelContainer(for: [FavoriteLocationModel.self, WeatherCacheEntity.self])
     }
 }

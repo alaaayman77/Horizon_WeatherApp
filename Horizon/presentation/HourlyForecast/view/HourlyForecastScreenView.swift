@@ -8,6 +8,7 @@ import SwiftUI
 
 struct HourlyForecastScreenView: View {
     @StateObject private var viewModel: HourlyForecastViewModel
+    @ObservedObject private var networkMonitor = NetworkMonitor.shared
     @Environment(\.dismiss) private var dismiss
 
     init(day: DailyForecastItem) {
@@ -25,7 +26,13 @@ struct HourlyForecastScreenView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                HourlyForecastHeader( onBack: { dismiss() })
+                HourlyForecastHeader(onBack: { dismiss() })
+
+                if !networkMonitor.isConnected {
+                    NoInternetBannerView {
+                        dismiss()
+                    }
+                }
 
                 ScrollView(showsIndicators: false) {
                     HourlyForecastListView(hours: viewModel.hours)
