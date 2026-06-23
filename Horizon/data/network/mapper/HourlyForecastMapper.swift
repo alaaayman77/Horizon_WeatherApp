@@ -16,3 +16,16 @@ extension HourlyWeatherDTO {
         )
     }
 }
+extension HourlyForecast {
+    func toDTO() -> HourlyWeatherDTO {
+        return HourlyWeatherDTO(
+            timeEpoch: Int(time.timeIntervalSince1970),
+            tempC: temperatureCelsius,
+            condition: ConditionDTO(
+                text: "",
+                icon: conditionIconURLString
+            ),
+            chanceOfRain: chanceOfRainPercentage
+        )
+    }
+}

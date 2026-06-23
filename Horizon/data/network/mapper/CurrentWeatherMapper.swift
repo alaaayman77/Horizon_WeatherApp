@@ -25,3 +25,25 @@ extension CurrentWeatherDTO {
 func formatIconURL(_ rawURL: String) -> String {
     return rawURL.hasPrefix("//") ? "https:\(rawURL)" : rawURL
 }
+
+extension CurrentWeather {
+    func toDTO() -> CurrentWeatherDTO {
+        return CurrentWeatherDTO(
+            tempC: temperatureCelsius,
+            isDay: isDaytime ? 1 : 0,
+            condition: ConditionDTO(
+                text: conditionText,
+                icon: conditionIconURLString
+            ),
+            pressureMb: pressureHpa,
+            humidity: humidityPercentage,
+            feelslikeC: feelsLikeCelsius,
+            visKm: visibilityKm,
+            uv: uvIndex,
+            windKph: windSpeedMps * 3.6,
+            cloud: cloudCoveragePercentage,
+            airQuality: nil
+        )
+    }
+}
+

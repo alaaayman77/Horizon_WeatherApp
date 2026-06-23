@@ -20,3 +20,24 @@ extension ForecastDayDTO {
         )
     }
 }
+extension DailyForecast {
+    func toDTO() -> ForecastDayDTO {
+        return ForecastDayDTO(
+            dateEpoch: Int(date.timeIntervalSince1970),
+            day: DayDTO(
+                maxtempC: maxTemperatureCelsius,
+                mintempC: minTemperatureCelsius,
+                condition: ConditionDTO(
+                    text: conditionText,
+                    icon: conditionIconURLString
+                ),
+                dailyChanceOfRain: hourlyForecasts.first?.chanceOfRainPercentage ?? 0
+            ),
+            astro: AstroDTO(
+                sunrise: sunrise,
+                sunset: sunset
+            ),
+            hour: hourlyForecasts.map { $0.toDTO() }
+        )
+    }
+}

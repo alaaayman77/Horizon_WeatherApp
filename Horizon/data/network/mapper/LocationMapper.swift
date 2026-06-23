@@ -17,7 +17,21 @@ extension LocationDTO {
             localTime: Date(timeIntervalSince1970: TimeInterval(localtimeEpoch))
         )
     }
+    
+    
 }
 
 
-
+extension Location {
+    func toDTO() -> LocationDTO {
+        return LocationDTO(
+            name: cityName,
+            region: region,
+            country: country,
+            lat: latitude,
+            lon: longitude,
+            tzId: "",
+            localtimeEpoch: Int(localTime.timeIntervalSince1970)
+        )
+    }
+}
