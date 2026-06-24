@@ -5,6 +5,7 @@
 //  Created by Alaa Ayman on 21/06/2026.
 //
 import Foundation
+
 struct Location {
     let cityName: String
     let region: String
@@ -12,4 +13,5 @@ struct Location {
     let latitude: Double
     let longitude: Double
     let localTime: Date
+    let timeZoneId: String     
 }

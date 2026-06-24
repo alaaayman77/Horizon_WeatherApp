@@ -4,7 +4,10 @@
 //
 //  Created by Alaa Ayman on 15/06/2026.
 //
+
+
 import SwiftUI
+
 struct HomeHeaderView: View {
     let greeting: String
     let dateTimeString: String
@@ -12,6 +15,8 @@ struct HomeHeaderView: View {
     let districtName: String?
     let conditionIcon: String
     let currentWeather: CurrentWeather?
+    let highTemp: Int?        
+    let lowTemp: Int?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -55,9 +60,11 @@ struct HomeHeaderView: View {
                     Text("\(Int(currentWeather.temperatureCelsius.rounded())) °C")
                         .font(AppFont.largeHeader)
                         .foregroundColor(.textOnPhoto)
+
                     Text(currentWeather.conditionText)
                         .font(AppFont.body)
                         .foregroundColor(.textOnPhotoSecondary)
+
                     HStack(spacing: 6) {
                         Image(systemName: "thermometer")
                             .font(.system(size: 11))
@@ -66,6 +73,15 @@ struct HomeHeaderView: View {
                     }
                     .foregroundColor(.textOnPhotoSecondary)
                     .padding(.top, 4)
+
+                    if let high = highTemp, let low = lowTemp {
+                        HStack(spacing: 8) {
+                            HiLoPill(icon: "arrow.up", value: "H: \(high)°")
+                            HiLoPill(icon: "arrow.down",  value: "L: \(low)°")
+                        }
+                        .padding(.top, 6)
+                    }
+
                 } else {
                     Text("-- °C")
                         .font(AppFont.largeHeader)
