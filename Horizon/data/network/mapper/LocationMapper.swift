@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 extension LocationDTO {
     func toEntity() -> Location {
         return Location(
@@ -14,13 +15,11 @@ extension LocationDTO {
             country: country,
             latitude: lat,
             longitude: lon,
-            localTime: Date(timeIntervalSince1970: TimeInterval(localtimeEpoch))
+            localTime: Date(timeIntervalSince1970: TimeInterval(localtimeEpoch)),
+            timeZoneId: tzId
         )
     }
-    
-    
 }
-
 
 extension Location {
     func toDTO() -> LocationDTO {
@@ -30,7 +29,7 @@ extension Location {
             country: country,
             lat: latitude,
             lon: longitude,
-            tzId: "",
+            tzId: timeZoneId,
             localtimeEpoch: Int(localTime.timeIntervalSince1970)
         )
     }

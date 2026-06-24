@@ -4,6 +4,8 @@
 //
 //  Created by Alaa Ayman on 22/06/2026.
 //
+
+
 import Foundation
 import Combine
 import SwiftData
@@ -67,7 +69,6 @@ final class SearchViewModel: ObservableObject {
             }
         }
 
- 
         let existingFavorites = Dictionary(
             uniqueKeysWithValues: displayedCountries.map { ($0.query, $0.isFavorite) }
         )
@@ -102,13 +103,15 @@ final class SearchViewModel: ObservableObject {
                     createdAt: Date()
                 )
                 try saveFavorite.execute(location: newFav)
+
+                Task {
+                    await cacheWeather(for: country.query, context: context)
+                }
             }
 
-         
             if let idx = displayedCountries.firstIndex(where: { $0.query == country.query }) {
                 displayedCountries[idx].isFavorite.toggle()
             }
-      
             syncFavorites(context: context)
 
         } catch {
@@ -125,6 +128,32 @@ final class SearchViewModel: ObservableObject {
         for i in 0..<displayedCountries.count {
             let isFav = (try? checkFavorite.execute(query: displayedCountries[i].query)) ?? false
             displayedCountries[i].isFavorite = isFav
+        }
+    }
+
+    private func cacheWeather(for query: String, context: ModelContext) async {
+        let weatherRepo = WeatherRepositoryImpl()
+        let getCurrentWeather = GetCurrentWeatherUsecase(repository: weatherRepo)
+        let getDailyForecast = GetDailyForecastUsecase(repository: weatherRepo)
+        let getLocation = GetLocationUsecase(repository: weatherRepo)
+
+        let cacheDAO = WeatherCacheDAOImpl(context: context)
+        let cacheLocalDS = WeatherCacheLocalDatasourceImpl(dao: cacheDAO)
+        let cacheRepo = WeatherCacheRepositoryImpl(localDataSource: cacheLocalDS)
+        let saveCache = SaveWeatherCacheUsecase(repository: cacheRepo)
+
+        do {
+            let current          = try await getCurrentWeather.execute(query: query)
+            let daily            = try await getDailyForecast.execute(query: query, days: 3)
+            let resolvedLocation = try await getLocation.execute(query: query)
+            try saveCache.execute(
+                query: query,
+                current: current,
+                daily: daily,
+                location: resolvedLocation
+            )
+        } catch {
+  
         }
     }
 }
