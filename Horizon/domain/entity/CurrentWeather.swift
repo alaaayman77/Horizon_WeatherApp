@@ -4,7 +4,10 @@
 //
 //  Created by Alaa Ayman on 21/06/2026.
 //
+
+
 import Foundation
+
 struct CurrentWeather {
     let temperatureCelsius: Double
     let conditionText: String
@@ -17,4 +20,5 @@ struct CurrentWeather {
     let uvIndex: Double
     let cloudCoveragePercentage: Int
     let isDaytime: Bool
+    let airQualityIndex: Int?      
 }

@@ -4,6 +4,7 @@
 //
 //  Created by Alaa Ayman on 21/06/2026.
 //
+
 extension CurrentWeatherDTO {
     func toEntity() -> CurrentWeather {
         return CurrentWeather(
@@ -17,13 +18,10 @@ extension CurrentWeatherDTO {
             visibilityKm: visKm,
             uvIndex: uv,
             cloudCoveragePercentage: cloud,
-            isDaytime: isDay == 1
+            isDaytime: isDay == 1,
+            airQualityIndex: airQuality?.usEpaIndex 
         )
     }
-}
-
-func formatIconURL(_ rawURL: String) -> String {
-    return rawURL.hasPrefix("//") ? "https:\(rawURL)" : rawURL
 }
 
 extension CurrentWeather {
@@ -42,8 +40,11 @@ extension CurrentWeather {
             uv: uvIndex,
             windKph: windSpeedMps * 3.6,
             cloud: cloudCoveragePercentage,
-            airQuality: nil
+            airQuality: airQualityIndex.map { AirQualityDTO(usEpaIndex: $0) }
         )
     }
 }
 
+func formatIconURL(_ rawURL: String) -> String {
+    return rawURL.hasPrefix("//") ? "https:\(rawURL)" : rawURL
+}
