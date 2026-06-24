@@ -17,7 +17,7 @@ extension Color {
     static let deepNavy = Color(red: 0.04, green: 0.10, blue: 0.24)
 
  
-    static let cardFill   = Color.white.opacity(0.55)
+    static let cardFill   = Color.white.opacity(0.75)
     static let cardStroke = Color.white.opacity(0.6)
 
   

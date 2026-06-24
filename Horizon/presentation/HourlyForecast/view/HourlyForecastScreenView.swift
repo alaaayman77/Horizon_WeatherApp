@@ -4,6 +4,9 @@
 //
 //  Created by Alaa Ayman on 18/06/2026.
 //
+
+
+
 import SwiftUI
 
 struct HourlyForecastScreenView: View {
@@ -15,9 +18,14 @@ struct HourlyForecastScreenView: View {
         _viewModel = StateObject(wrappedValue: HourlyForecastViewModel(day: day))
     }
 
+    private var backgroundImage: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return (hour >= 6 && hour < 20) ? "light" : "night"
+    }
+
     var body: some View {
         ZStack {
-            Image("night")
+            Image(backgroundImage)
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()

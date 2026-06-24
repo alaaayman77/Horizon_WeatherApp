@@ -5,6 +5,8 @@
 //  Created by Alaa Ayman on 14/06/2026.
 //
 
+
+
 import SwiftUI
 import SwiftData
 
@@ -12,6 +14,11 @@ struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
     @Environment(\.modelContext) private var context
     @State private var selectedQuery: String? = nil
+
+    private var backgroundImage: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return (hour >= 6 && hour < 20) ? "light" : "night"
+    }
 
     var body: some View {
         NavigationStack {
@@ -85,7 +92,7 @@ struct SearchView: View {
             }
             .background {
                 ZStack {
-                    Image("night")
+                    Image(backgroundImage)
                         .resizable()
                         .scaledToFill()
                         .ignoresSafeArea()

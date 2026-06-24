@@ -6,9 +6,9 @@
 //
 
 
+
 import SwiftUI
 import SwiftData
-
 
 struct HomeView: View {
     @Environment(\.modelContext) private var context
@@ -23,7 +23,6 @@ struct HomeView: View {
     }
 }
 
-
 private struct HomeContentView: View {
     @StateObject private var viewModel: HomeViewModel
     @Environment(\.dismiss) private var dismiss
@@ -36,13 +35,22 @@ private struct HomeContentView: View {
         )
     }
 
+    private var backgroundImage: String {
+        if let weather = viewModel.currentWeather {
+            return weather.isDaytime ? "light" : "night"
+        }
+        let hour = Calendar.current.component(.hour, from: Date())
+        return (hour >= 6 && hour < 20) ? "light" : "night"
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Image("night")
+                Image(backgroundImage)
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
+                    .animation(.easeInOut(duration: 0.6), value: backgroundImage)
 
                 if viewModel.isLoading && viewModel.currentWeather == nil {
                     ProgressView().tint(.white)
@@ -93,7 +101,9 @@ private struct HomeContentView: View {
                                     cityName: viewModel.location?.region ?? "Locating...",
                                     districtName: viewModel.location?.cityName,
                                     conditionIcon: viewModel.conditionIcon,
-                                    currentWeather: viewModel.currentWeather
+                                    currentWeather: viewModel.currentWeather,
+                                    highTemp: viewModel.dailyForecastItems.first.map { Int($0.high) },
+                                    lowTemp: viewModel.dailyForecastItems.first.map { Int($0.low) }
                                 )
                                 DailyForecastList(days: viewModel.dailyForecastItems)
                                 WeatherStatGrid(currentWeather: viewModel.currentWeather)

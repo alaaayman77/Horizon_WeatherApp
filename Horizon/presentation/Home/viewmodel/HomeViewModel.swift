@@ -6,6 +6,7 @@
 //
 
 
+
 import CoreLocation
 import Foundation
 import SwiftData
@@ -28,7 +29,6 @@ final class HomeViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published private(set) var isShowingCachedData: Bool = false
 
-   
     private let getCurrentWeather: GetCurrentWeatherUsecase
     private let getDailyForecast: GetDailyForecastUsecase
     private let getLocation: GetLocationUsecase
@@ -38,7 +38,6 @@ final class HomeViewModel: ObservableObject {
     private let loadCache: LoadWeatherCacheUsecase
     private let query: String?
 
- 
     init(
         query: String? = nil,
         context: ModelContext,
@@ -64,7 +63,6 @@ final class HomeViewModel: ObservableObject {
 
     func loadWeatherForCurrentLocation() async {
         if let query {
-           
             await loadWeather(query: query)
         } else {
             isLoading = true
@@ -72,12 +70,8 @@ final class HomeViewModel: ObservableObject {
             do {
                 let coordinate = try await locationService.requestCurrentLocation()
                 let q = "\(coordinate.latitude),\(coordinate.longitude)"
-                
-             
                 await loadWeather(query: q, cacheKey: "CurrentLocation")
-                
             } catch {
-               
                 if let cached = try? loadCache.execute(query: "CurrentLocation") {
                     apply(current: cached.current, daily: cached.daily, location: cached.location)
                     isShowingCachedData = true
@@ -93,17 +87,13 @@ final class HomeViewModel: ObservableObject {
         await loadWeatherForCurrentLocation()
     }
 
-
     private func loadWeather(query: String, cacheKey: String? = nil) async {
-     
         let actualCacheKey = cacheKey ?? query
-        
         isLoading = true
         errorMessage = nil
 
         guard networkMonitor.isConnected else {
             isShowingCachedData = true
-         
             if let cached = try? loadCache.execute(query: actualCacheKey) {
                 apply(current: cached.current, daily: cached.daily, location: cached.location)
             } else {
@@ -115,12 +105,10 @@ final class HomeViewModel: ObservableObject {
 
         isShowingCachedData = false
         do {
-            
-            let current = try await getCurrentWeather.execute(query: query)
-            let daily = try await getDailyForecast.execute(query: query, days: 3)
+            let current          = try await getCurrentWeather.execute(query: query)
+            let daily            = try await getDailyForecast.execute(query: query, days: 3)
             let resolvedLocation = try await getLocation.execute(query: query)
 
-          
             try? saveCache.execute(
                 query: actualCacheKey,
                 current: current,
@@ -130,7 +118,6 @@ final class HomeViewModel: ObservableObject {
 
             apply(current: current, daily: daily, location: resolvedLocation)
         } catch {
-          
             if let cached = try? loadCache.execute(query: actualCacheKey) {
                 apply(current: cached.current, daily: cached.daily, location: cached.location)
                 isShowingCachedData = true
@@ -143,22 +130,33 @@ final class HomeViewModel: ObservableObject {
     }
 
     private func apply(current: CurrentWeather, daily: [DailyForecast], location: Location) {
-        self.currentWeather = current
-        self.location = location
-        self.dailyForecastItems = daily.map { DailyForecastItem(from: $0) }
-        self.sunTimes = daily.first.map { ($0.sunrise, $0.sunset) }
-        self.greeting = Self.greeting()
-        self.currentDateTimeString = Self.currentDateTimeString()
-        self.conditionIcon = Self.conditionIcon(for: current)
+        self.currentWeather        = current
+        self.location              = location
+        self.dailyForecastItems    = daily.map { DailyForecastItem(from: $0) }
+        self.sunTimes              = daily.first.map { ($0.sunrise, $0.sunset) }
+        self.conditionIcon         = Self.conditionIcon(for: current)
+        self.greeting              = Self.greeting(from: location.localTime, tzId: location.timeZoneId)
+        self.currentDateTimeString = Self.currentDateTimeString(from: location.localTime, tzId: location.timeZoneId)
         if let first = daily.first {
-            self.sunProgress = Self.calculateSunProgress(sunrise: first.sunrise, sunset: first.sunset)
+            self.sunProgress = Self.calculateSunProgress(
+                sunrise: first.sunrise,
+                sunset: first.sunset,
+                tzId: location.timeZoneId
+            )
         }
         self.uvRoundedValue = Int(current.uvIndex.rounded())
-        self.uvLabel = Self.uvLabel(for: current.uvIndex)
-        self.uvPercent = min(current.uvIndex / 11.0, 1.0)
+        self.uvLabel        = Self.uvLabel(for: current.uvIndex)
+        self.uvPercent      = min(current.uvIndex / 11.0, 1.0)
     }
-    private static func greeting() -> String {
-        let hour = Calendar.current.component(.hour, from: Date())
+
+
+
+    private static func greeting(from localTime: Date, tzId: String) -> String {
+        var calendar = Calendar.current
+        if let tz = TimeZone(identifier: tzId) {
+            calendar.timeZone = tz
+        }
+        let hour = calendar.component(.hour, from: localTime)
         switch hour {
         case 5..<12: return "Good Morning"
         case 12..<17: return "Good Afternoon"
@@ -167,10 +165,33 @@ final class HomeViewModel: ObservableObject {
         }
     }
 
-    private static func currentDateTimeString() -> String {
+    private static func currentDateTimeString(from localTime: Date, tzId: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE, d MMM  •  hh:mm a"
-        return formatter.string(from: Date())
+ 
+        formatter.timeZone = TimeZone(identifier: tzId) ?? .current
+        return formatter.string(from: localTime)
+    }
+
+    private static func calculateSunProgress(sunrise: String, sunset: String, tzId: String) -> Double {
+        let tz = TimeZone(identifier: tzId) ?? .current
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm a"
+        formatter.timeZone = tz
+
+        guard
+            let sunriseDate = formatter.date(from: sunrise),
+            let sunsetDate  = formatter.date(from: sunset)
+        else { return 0.5 }
+
+        // Get current time expressed in the location's timezone
+        let nowString = formatter.string(from: Date())
+        let now = formatter.date(from: nowString) ?? sunriseDate
+
+        let total = sunsetDate.timeIntervalSince(sunriseDate)
+        guard total > 0 else { return 0.5 }
+        return min(max(now.timeIntervalSince(sunriseDate) / total, 0), 1)
     }
 
     private static func conditionIcon(for weather: CurrentWeather) -> String {
@@ -184,23 +205,6 @@ final class HomeViewModel: ObservableObject {
         return isNight ? "moon.stars.fill" : "sun.max.fill"
     }
 
-    private static func calculateSunProgress(sunrise: String, sunset: String) -> Double {
-        guard let sunriseDate = timeOnly(sunrise), let sunsetDate = timeOnly(sunset) else { return 0.5 }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "hh:mm a"
-        let nowString = formatter.string(from: Date())
-        let now = timeOnly(nowString) ?? sunriseDate
-        let total = sunsetDate.timeIntervalSince(sunriseDate)
-        guard total > 0 else { return 0.5 }
-        return min(max(now.timeIntervalSince(sunriseDate) / total, 0), 1)
-    }
-
-    private static func timeOnly(_ string: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "hh:mm a"
-        return formatter.date(from: string)
-    }
-
     private static func uvLabel(for uvIndex: Double) -> String {
         switch uvIndex {
         case ..<3:   return "Low"
@@ -209,5 +213,11 @@ final class HomeViewModel: ObservableObject {
         case 8..<11: return "Very High"
         default:     return "Extreme"
         }
+    }
+
+    private static func timeOnly(_ string: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm a"
+        return formatter.date(from: string)
     }
 }

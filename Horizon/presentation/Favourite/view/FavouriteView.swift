@@ -5,6 +5,7 @@
 //  Created by Alaa Ayman on 14/06/2026.
 //
 
+
 import SwiftUI
 import SwiftData
 
@@ -14,10 +15,15 @@ struct FavouriteView: View {
     @Environment(\.modelContext) private var context
     @State private var selectedQuery: String? = nil
 
+    private var backgroundImage: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        return (hour >= 6 && hour < 20) ? "light" : "night"
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Image("night")
+                Image(backgroundImage)
                     .resizable()
                     .scaledToFill()
                     .ignoresSafeArea()
@@ -27,9 +33,18 @@ struct FavouriteView: View {
 
                 VStack(spacing: 0) {
                     if !networkMonitor.isConnected {
-                  
                         NoInternetBannerView { }
                     }
+
+                    HStack {
+                        Text("Favourites")
+                            .font(AppFont.h1)
+                            .foregroundColor(.textOnPhoto)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+                    .padding(.bottom, 12)
 
                     if viewModel.favoriteLocations.isEmpty {
                         Spacer()
@@ -52,7 +67,7 @@ struct FavouriteView: View {
                                         subtitle: favorite.code,
                                         isFavorite: true,
                                         onFavoriteTapped: {
-                                            viewModel.remove(query: favorite.query, context: context)
+                                            viewModel.requestDelete(query: favorite.query)
                                         }
                                     )
                                     .contentShape(Rectangle())
@@ -68,9 +83,9 @@ struct FavouriteView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) {
-                                        viewModel.remove(query: favorite.query, context: context)
+                                        viewModel.requestDelete(query: favorite.query)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -81,7 +96,6 @@ struct FavouriteView: View {
                         .scrollContentBackground(.hidden)
                         .contentMargins(.horizontal, 0)
                         .navigationDestination(item: $selectedQuery) { query in
-                         
                             HomeView(query: query)
                         }
                     }
@@ -89,6 +103,25 @@ struct FavouriteView: View {
             }
             .navigationBarHidden(true)
             .toolbar(.hidden, for: .navigationBar)
+         
+            .alert(
+                "Remove Favourite",
+                isPresented: Binding(
+                    get: { viewModel.pendingDeleteQuery != nil },
+                    set: { if !$0 { viewModel.cancelDelete() } }
+                )
+            ) {
+                Button("Remove", role: .destructive) {
+                    viewModel.confirmDelete(context: context)
+                }
+                Button("Cancel", role: .cancel) {
+                    viewModel.cancelDelete()
+                }
+            } message: {
+                if let query = viewModel.pendingDeleteQuery {
+                    Text("Remove \(viewModel.name(for: query)) from your favourites?")
+                }
+            }
         }
         .onAppear {
             viewModel.loadFavorites(context: context)
